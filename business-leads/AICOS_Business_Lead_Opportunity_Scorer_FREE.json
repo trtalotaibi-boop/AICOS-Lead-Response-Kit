@@ -1,0 +1,111 @@
+{
+  "name": "AICOS Business Lead Opportunity Scorer — FREE",
+  "nodes": [
+    {
+      "id": "0015c595-6436-4ce9-82d8-01a3c6c54e9d",
+      "name": "Start Business Lead Scoring",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {}
+    },
+    {
+      "id": "d7b8f15c-3d78-43e4-9154-1a7343900def",
+      "name": "Business Lead Input",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [240, 0],
+      "parameters": {
+        "mode": "manual",
+        "assignments": {
+          "assignments": [
+            {"id":"business-name","name":"business_name","type":"string","value":"Demo Local Business"},
+            {"id":"category","name":"category","type":"string","value":"Barbershop"},
+            {"id":"city","name":"city","type":"string","value":"Makkah"},
+            {"id":"phone","name":"phone","type":"string","value":"+966500000001"},
+            {"id":"email","name":"email","type":"string","value":""},
+            {"id":"website","name":"website","type":"string","value":""},
+            {"id":"rating","name":"rating","type":"number","value":4.2},
+            {"id":"reviews","name":"reviews","type":"number","value":37},
+            {"id":"booking","name":"online_booking","type":"boolean","value":false},
+            {"id":"maps","name":"maps_url","type":"string","value":"https://maps.google.com/"},
+            {"id":"source","name":"source","type":"string","value":"demo"}
+          ]
+        }
+      }
+    },
+    {
+      "id": "a4d35ec9-7418-45c0-8946-14962d21e597",
+      "name": "Normalize Business Lead",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [480, 0],
+      "parameters": {
+        "mode": "manual",
+        "includeOtherFields": false,
+        "assignments": {
+          "assignments": [
+            {"id":"n-name","name":"business_name","type":"string","value":"={{ ($json.business_name || \"\").trim() }}"},
+            {"id":"n-category","name":"category","type":"string","value":"={{ ($json.category || \"Unknown\").trim() }}"},
+            {"id":"n-city","name":"city","type":"string","value":"={{ ($json.city || \"\").trim() }}"},
+            {"id":"n-phone","name":"phone","type":"string","value":"={{ ($json.phone || \"\").trim() }}"},
+            {"id":"n-email","name":"email","type":"string","value":"={{ ($json.email || \"\").trim() }}"},
+            {"id":"n-website","name":"website","type":"string","value":"={{ ($json.website || \"\").trim() }}"},
+            {"id":"n-rating","name":"rating","type":"number","value":"={{ Number($json.rating || 0) }}"},
+            {"id":"n-reviews","name":"reviews","type":"number","value":"={{ Number($json.reviews || 0) }}"},
+            {"id":"n-booking","name":"online_booking","type":"boolean","value":"={{ Boolean($json.online_booking) }}"},
+            {"id":"n-maps","name":"maps_url","type":"string","value":"={{ $json.maps_url || \"\" }}"},
+            {"id":"n-source","name":"source","type":"string","value":"={{ $json.source || \"manual\" }}"}
+          ]
+        }
+      }
+    },
+    {
+      "id": "aa3d08c7-3eda-489a-8f97-f95b12d8cf7c",
+      "name": "Score Sales Opportunity",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [720, 0],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const x = $json;\nlet score = 0;\nconst reasons = [];\nconst hasPhone = /^\\+?[0-9][0-9\\s-]{7,}$/.test(x.phone || \"\");\nconst hasEmail = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(x.email || \"\");\nconst hasWebsite = /^https?:\\/\\//i.test(x.website || \"\");\nconst valid = Boolean(x.business_name && x.category && (hasPhone || hasEmail || hasWebsite));\nif (hasPhone) { score += 15; reasons.push(\"reachable by phone\"); }\nif (hasEmail) { score += 10; reasons.push(\"email available\"); }\nif (!hasWebsite) { score += 25; reasons.push(\"no website detected\"); }\nif (!x.online_booking) { score += 20; reasons.push(\"no online booking detected\"); }\nif (x.rating >= 4) { score += 10; reasons.push(\"strong customer rating\"); }\nif (x.reviews >= 20) { score += 10; reasons.push(\"proven local demand\"); }\nif (x.reviews >= 100) { score += 10; reasons.push(\"high review volume\"); }\nif (!valid) score = 0;\nconst priority = !valid ? \"REJECT\" : score >= 70 ? \"HIGH\" : score >= 45 ? \"MEDIUM\" : \"LOW\";\nconst angle = !valid ? \"Missing usable contact/business data\" : !hasWebsite ? \"Website / digital presence opportunity\" : !x.online_booking ? \"Online booking / conversion opportunity\" : \"Lead follow-up / automation opportunity\";\nreturn { json: { ...x, valid, score, priority, opportunity_reasons: reasons, outreach_angle: angle } };"
+      }
+    },
+    {
+      "id": "45be24ef-3448-4d68-a425-1f4026aed0f9",
+      "name": "Owner Review Output",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [960, 0],
+      "parameters": {
+        "mode": "manual",
+        "includeOtherFields": false,
+        "assignments": {
+          "assignments": [
+            {"id":"o-business","name":"business_name","type":"string","value":"={{ $json.business_name }}"},
+            {"id":"o-category","name":"category","type":"string","value":"={{ $json.category }}"},
+            {"id":"o-city","name":"city","type":"string","value":"={{ $json.city }}"},
+            {"id":"o-score","name":"score","type":"number","value":"={{ $json.score }}"},
+            {"id":"o-priority","name":"priority","type":"string","value":"={{ $json.priority }}"},
+            {"id":"o-valid","name":"valid","type":"boolean","value":"={{ $json.valid }}"},
+            {"id":"o-angle","name":"outreach_angle","type":"string","value":"={{ $json.outreach_angle }}"},
+            {"id":"o-reasons","name":"opportunity_reasons","type":"array","value":"={{ $json.opportunity_reasons }}"},
+            {"id":"o-phone","name":"phone","type":"string","value":"={{ $json.phone }}"},
+            {"id":"o-email","name":"email","type":"string","value":"={{ $json.email }}"},
+            {"id":"o-website","name":"website","type":"string","value":"={{ $json.website }}"},
+            {"id":"o-maps","name":"maps_url","type":"string","value":"={{ $json.maps_url }}"}
+          ]
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Start Business Lead Scoring":{"main":[[{"node":"Business Lead Input","type":"main","index":0}]]},
+    "Business Lead Input":{"main":[[{"node":"Normalize Business Lead","type":"main","index":0}]]},
+    "Normalize Business Lead":{"main":[[{"node":"Score Sales Opportunity","type":"main","index":0}]]},
+    "Score Sales Opportunity":{"main":[[{"node":"Owner Review Output","type":"main","index":0}]]}
+  },
+  "pinData": {},
+  "active": false,
+  "settings": {"executionOrder":"v1"}
+}
