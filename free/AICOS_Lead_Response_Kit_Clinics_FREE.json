@@ -1,0 +1,245 @@
+{
+  "name": "AICOS Lead Response Kit - Clinics Edition FREE",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "free-manual-trigger",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -800,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "cfg-service",
+              "name": "service_weights",
+              "value": {
+                "تجميل": 40,
+                "أسنان": 30,
+                "استشارة": 20
+              },
+              "type": "object"
+            },
+            {
+              "id": "cfg-source",
+              "name": "source_weights",
+              "value": {
+                "حجز مباشر": 30,
+                "واتساب": 20,
+                "إنستغرام": 15
+              },
+              "type": "object"
+            },
+            {
+              "id": "cfg-thresholds",
+              "name": "priority_thresholds",
+              "value": {
+                "high": 70,
+                "medium": 40
+              },
+              "type": "object"
+            },
+            {
+              "id": "cfg-bonus",
+              "name": "preferred_time_bonus",
+              "value": 5,
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "free-clinic-config",
+      "name": "Clinic Config",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -576,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "lead-id",
+              "name": "lead_id",
+              "value": "DEMO-0001",
+              "type": "string"
+            },
+            {
+              "id": "lead-name",
+              "name": "name",
+              "value": "Demo Lead",
+              "type": "string"
+            },
+            {
+              "id": "lead-phone",
+              "name": "phone",
+              "value": "+966500000001",
+              "type": "string"
+            },
+            {
+              "id": "lead-service",
+              "name": "service_type",
+              "value": "أسنان",
+              "type": "string"
+            },
+            {
+              "id": "lead-source",
+              "name": "source",
+              "value": "واتساب",
+              "type": "string"
+            },
+            {
+              "id": "lead-time",
+              "name": "preferred_time",
+              "value": "مساء",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "free-sample-input",
+      "name": "Lead Input (Sample)",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -352,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const cfg = $('Clinic Config').item.json;\nconst re = /^\\+?[0-9]{8,15}$/;\nreturn $input.all().map(item => {\n  const lead = item.json;\n  const score = (cfg.service_weights?.[lead.service_type] || 0) + (cfg.source_weights?.[lead.source] || 0) + (lead.preferred_time ? (cfg.preferred_time_bonus || 0) : 0);\n  const th = cfg.priority_thresholds || { high: 70, medium: 40 };\n  const priority = score >= th.high ? 'HIGH' : (score >= th.medium ? 'MEDIUM' : 'LOW');\n  const valid = Boolean(lead.lead_id) && re.test(lead.phone || '');\n  return { json: { lead_id: lead.lead_id, name: lead.name, service_type: lead.service_type, score, priority, valid, reject_reason: valid ? null : (!lead.lead_id ? 'missing_lead_id' : 'invalid_phone') } };\n});"
+      },
+      "id": "free-score",
+      "name": "Validate & Score",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -128,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "out-id",
+              "name": "lead_id",
+              "value": "={{ $json.lead_id }}",
+              "type": "string"
+            },
+            {
+              "id": "out-name",
+              "name": "name",
+              "value": "={{ $json.name }}",
+              "type": "string"
+            },
+            {
+              "id": "out-service",
+              "name": "service_type",
+              "value": "={{ $json.service_type }}",
+              "type": "string"
+            },
+            {
+              "id": "out-score",
+              "name": "score",
+              "value": "={{ $json.score }}",
+              "type": "number"
+            },
+            {
+              "id": "out-priority",
+              "name": "priority",
+              "value": "={{ $json.priority }}",
+              "type": "string"
+            },
+            {
+              "id": "out-valid",
+              "name": "valid",
+              "value": "={{ $json.valid }}",
+              "type": "boolean"
+            },
+            {
+              "id": "out-reason",
+              "name": "reject_reason",
+              "value": "={{ $json.reject_reason }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "free-output",
+      "name": "Owner Review Output",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        96,
+        160
+      ]
+    }
+  ],
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Clinic Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clinic Config": {
+      "main": [
+        [
+          {
+            "node": "Lead Input (Sample)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lead Input (Sample)": {
+      "main": [
+        [
+          {
+            "node": "Validate & Score",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate & Score": {
+      "main": [
+        [
+          {
+            "node": "Owner Review Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": []
+}
