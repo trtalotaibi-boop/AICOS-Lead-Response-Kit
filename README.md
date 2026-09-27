@@ -16,7 +16,7 @@ The FREE workflow lets you test the core idea immediately:
 
 **sample lead → validation → scoring → priority → owner-review output**
 
-It requires no credentials and no external AI API.
+It requires no credentials and no external AI API. The public FREE workflow was runtime-tested successfully on n8n Cloud on September 27, 2026.
 
 ## FREE vs Full edition
 
