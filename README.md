@@ -1,3 +1,29 @@
+# AICOS Lead Response Kit
+
+**Two FREE n8n editions are now available: Clinics and Business Leads.**
+
+## Business Leads Edition — NEW
+
+Turn local-business lead data into a prioritized sales-opportunity queue:
+
+**business data → normalize → validate → opportunity score → HIGH / MEDIUM / LOW → owner review**
+
+- [Download Business Lead Opportunity Scorer — FREE](business-leads/AICOS_Business_Lead_Opportunity_Scorer_FREE.json)
+- [Business Leads Quick Start](business-leads/QUICK_START.md)
+- No credentials required.
+- No external AI API required.
+- Runtime-tested successfully on n8n Cloud on September 27, 2026.
+- Works with business-lead data you provide or obtain from sources you are permitted to use.
+- It does not scrape Google Maps or other websites.
+
+Example runtime result:
+
+`Demo Local Business | Barbershop | Score: 80 | Priority: HIGH | Valid: true`
+
+The existing Clinics Edition remains available and unchanged.
+
+---
+
 # AICOS Lead Response Kit — Clinics Edition
 
 **Turn incoming leads into a clear, prioritized review queue.**
