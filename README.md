@@ -2,21 +2,35 @@
 
 **Turn incoming leads into a clear, prioritized review queue.**
 
-AICOS Lead Response Kit is a ready-to-use n8n workflow package for lead validation, qualification, prioritization, duplicate detection, owner review, and follow-up preparation. Built for clinics and adaptable to small teams, it helps organize lead handling with configurable scoring and Arabic follow-up message templates. Buyers run the package in their own n8n environment.
+AICOS Lead Response Kit is an n8n workflow package for lead validation, qualification, prioritization, duplicate detection, owner review, and follow-up preparation. Built for clinics and adaptable to small teams.
 
-## What it does
+## Try the FREE version now
 
-The kit takes incoming lead data through a structured workflow, checks validity, evaluates qualification and priority, detects duplicates, and prepares output for owner review and follow-up.
+A functional FREE preview is available in this repository:
 
-## Key features
+- [Download the FREE n8n workflow](free/AICOS_Lead_Response_Kit_Clinics_FREE.json)
+- [FREE Quick Start](FREE_QUICK_START.md)
+- [FREE Usage Terms](FREE_USAGE_TERMS.md)
 
-- **Lead data validation** to check incoming records.
-- **Lead scoring and prioritization** with configurable scoring logic.
-- **Duplicate detection** to identify repeated leads.
-- **Owner review output** to support human decisions.
-- **Arabic follow-up message templates** for follow-up preparation.
-- **n8n workflow-based execution** in the buyer's own environment.
-- **No external AI API required** in the current version.
+The FREE workflow lets you test the core idea immediately:
+
+**sample lead → validation → scoring → priority → owner-review output**
+
+It requires no credentials and no external AI API.
+
+## FREE vs Full edition
+
+| Capability | FREE | Full |
+| --- | --- | --- |
+| Lead validation | Yes | Yes |
+| Configurable scoring | Yes | Yes |
+| HIGH / MEDIUM / LOW priority | Yes | Yes |
+| Owner review output | Yes | Yes |
+| Data Table persistence | No | Yes |
+| Duplicate detection / upsert | No | Yes |
+| Full follow-up preparation | No | Yes |
+| SLA / channel logic | No | Yes |
+| Full setup documentation | No | Yes |
 
 ## Who it is for
 
@@ -25,55 +39,41 @@ The kit takes incoming lead data through a structured workflow, checks validity,
 - Agencies supporting client lead operations.
 - Teams using n8n for lead handling.
 
-## How it works
+## How to try it
 
-1. Import the workflow package into your own n8n environment.
-2. Follow the setup documentation and configure the data table schema and scoring logic.
-3. Connect your authorized lead input and test with sample data.
-4. Validate and qualify leads, assign priority, and detect duplicates.
-5. Review the owner output and prepared follow-up messages before taking action.
+1. Download the FREE workflow above.
+2. Import it into your own n8n environment.
+3. Optionally edit the included sample lead.
+4. Run the Manual Trigger.
+5. Review the validation, score, priority, and owner output.
 
-## What is included
+## Full edition
 
-The digital product package includes:
+The commercial package includes the full n8n workflow plus quick-start, setup, configuration, data-table, troubleshooting, testing, FAQ, and usage documentation.
 
-- n8n workflow package
-- Quick start guide
-- Setup guide
-- Configuration guide
-- Data table schema documentation
-
-This public repository is a product overview only. The paid workflow package and accompanying guides are not distributed here.
-
-## Requirements
-
-- Access to your own n8n environment.
-- Ability to import and configure n8n workflows.
-- Authorized lead data and access needed for your chosen integrations.
-- Configuration of the documented data table schema and scoring rules.
-- A person responsible for reviewing results and sending follow-ups.
+**The paid workflow and paid package are not distributed in this public repository.**
 
 ## Privacy / data handling
 
-The workflow runs in the buyer's own n8n environment. Buyers control their deployment, connected services, access permissions, and data retention. Handle only data you are authorized to use and configure access appropriately.
+The workflow runs in the user's own n8n environment. Users control their deployment, connected services, access permissions, and data retention.
 
-Do not post lead records, patient information, credentials, API keys, or other sensitive information in this public repository or its issues. This page contains product information only; it does not collect or process leads.
+Do not post lead records, patient information, credentials, API keys, or other sensitive information in this public repository or its issues.
 
 ## Current limitations
 
-- No automatic WhatsApp or SMS sending in the current version.
-- Follow-up messages are prepared for human review and manual use.
-- No external AI API is required in the current version.
-- Setup and configuration in the buyer's n8n environment are required.
-- The kit supports lead handling; it does not provide clinical advice or make medical decisions.
+- No automatic WhatsApp or SMS sending in the current edition.
+- Follow-up output is designed for human review.
+- No external AI API is required.
+- Setup and configuration in the user's n8n environment are required.
+- AICOS supports lead handling; it does not provide clinical advice or make medical decisions.
 - Results depend on input quality and configured scoring rules.
 
 ## Purchase
 
-Purchase link coming soon.
+**Full edition: coming soon.**
 
-The package is intended as a one-time digital purchase. Optional setup assistance may also be offered.
+The FREE version remains available for evaluation while checkout for the full edition is being prepared.
 
 ## Contact / support
 
-For general product questions, [open an issue in this repository](https://github.com/trtalotaibi-boop/AICOS-Lead-Response-Kit/issues). Please keep inquiries free of personal, patient, customer, or credential data.
+For general product questions, [open an issue in this repository](https://github.com/trtalotaibi-boop/AICOS-Lead-Response-Kit/issues). Do not include personal, patient, customer, credential, or other sensitive data.
