@@ -1,0 +1,155 @@
+{
+  "name": "General Feedback",
+  "description": "General Feedback for AICOS Clinics Edition v1.0 Free Beta.",
+  "title": "[General Feedback]: ",
+  "body": [
+    {
+      "type": "markdown",
+      "attributes": {
+        "value": "Use synthetic data only. Do not include credentials, API keys, tokens, patient/customer records, personal phone numbers or phone lists. Redact screenshots. Public issues are visible to others."
+      }
+    },
+    {
+      "type": "input",
+      "id": "n8n-version",
+      "attributes": {
+        "label": "n8n version (or not tested)"
+      },
+      "validations": {
+        "required": true
+      }
+    },
+    {
+      "type": "dropdown",
+      "id": "install-type",
+      "attributes": {
+        "label": "Install type",
+        "options": [
+          "Docker",
+          "OrbStack",
+          "Other self-hosted",
+          "Other",
+          "Not installed"
+        ]
+      },
+      "validations": {
+        "required": true
+      }
+    },
+    {
+      "type": "textarea",
+      "id": "actual",
+      "attributes": {
+        "label": "What happened or what did you try?"
+      },
+      "validations": {
+        "required": true
+      }
+    },
+    {
+      "type": "textarea",
+      "id": "expected",
+      "attributes": {
+        "label": "Expected behavior or requested improvement"
+      },
+      "validations": {
+        "required": true
+      }
+    },
+    {
+      "type": "textarea",
+      "id": "steps",
+      "attributes": {
+        "label": "Synthetic steps to reproduce / evaluate (or not applicable)"
+      },
+      "validations": {
+        "required": false
+      }
+    },
+    {
+      "type": "dropdown",
+      "id": "severity",
+      "attributes": {
+        "label": "Severity",
+        "options": [
+          "critical",
+          "high",
+          "medium",
+          "low",
+          "not applicable"
+        ]
+      },
+      "validations": {
+        "required": true
+      }
+    },
+    {
+      "type": "textarea",
+      "id": "screenshot",
+      "attributes": {
+        "label": "Optional sanitized screenshot — drag/drop here"
+      },
+      "validations": {
+        "required": false
+      }
+    },
+    {
+      "type": "textarea",
+      "id": "comments",
+      "attributes": {
+        "label": "Additional comments"
+      },
+      "validations": {
+        "required": false
+      }
+    },
+    {
+      "type": "dropdown",
+      "id": "install-outcome",
+      "attributes": {
+        "label": "Installation outcome",
+        "options": [
+          "Attempted",
+          "Successful",
+          "Blocked",
+          "Not tried"
+        ]
+      },
+      "validations": {
+        "required": true
+      }
+    },
+    {
+      "type": "dropdown",
+      "id": "rating",
+      "attributes": {
+        "label": "Optional rating",
+        "options": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+        ]
+      },
+      "validations": {
+        "required": false
+      }
+    },
+    {
+      "type": "dropdown",
+      "id": "repeat-use",
+      "attributes": {
+        "label": "Did you use it again? (optional)",
+        "options": [
+          "Yes",
+          "No",
+          "Not yet"
+        ]
+      },
+      "validations": {
+        "required": false
+      }
+    }
+  ]
+}

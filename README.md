@@ -1,105 +1,131 @@
-# AICOS Lead Response Kit
+# AICOS Lead Response Kit — Clinics Edition v1.0
 
-**Two FREE n8n editions are now available: Clinics and Business Leads.**
+**Free Beta · Manual n8n workflow · Arabic follow-up drafts**
 
-## Business Leads Edition — NEW
+Validate, score and review a synthetic clinic lead in your own n8n environment. Repeat entries with the same phone update the existing record. The beta is free to try; no payment or paid API is required. Separate hosting costs, if you choose a paid host, are your responsibility.
 
-Turn local-business lead data into a prioritized sales-opportunity queue:
+## The problem and the workflow
 
-**business data → normalize → validate → opportunity score → HIGH / MEDIUM / LOW → owner review**
+Lead details can be inconsistent, repeated and difficult to review. This template provides a repeatable way to check the supplied identifier and phone format, assign a configured priority, store the record and prepare a draft for human review.
 
-- [Download Business Lead Opportunity Scorer — FREE](business-leads/AICOS_Business_Lead_Opportunity_Scorer_FREE.json)
-- [Business Leads Quick Start](business-leads/QUICK_START.md)
-- No credentials required.
-- No external AI API required.
-- Runtime-tested successfully on n8n Cloud on September 27, 2026.
-- Works with business-lead data you provide or obtain from sources you are permitted to use.
-- It does not scrape Google Maps or other websites.
+```text
+Manual Trigger → Clinic Config → Lead Input (Sample) → Normalize & Score
+  → Valid Lead?
+    accepted → Find Existing Lead → Prepare Follow-Up → Save Lead (Upsert)
+    rejected → no table write
+  → Owner Review Output
+```
 
-Example runtime result:
+## What it does
 
-`Demo Local Business | Barbershop | Score: 80 | Priority: HIGH | Valid: true`
+- Checks a non-whitespace string `lead_id` and phone format.
+- Adds configured service, source and preferred-time points.
+- Assigns LOW, MEDIUM or HIGH, with an informational SLA preview.
+- Looks up and upserts by exact phone string in `aicos_clinic_leads`.
+- Preserves existing status, increments `touch_count` and updates `last_seen`.
+- Shows identity, source, score, validation, priority, record state, result and rejection reason.
+- Prepares an editable Arabic draft for accepted leads.
 
-The existing Clinics Edition remains available and unchanged.
+It has no automatic Email, WhatsApp or SMS send, no AI/LLM calls, no external CRM integration and no payment step. It does not validate email, verify phone ownership, schedule an actual callback or guarantee business results.
 
----
+## Prerequisites
 
-# AICOS Lead Response Kit — Clinics Edition
+- An n8n instance with Data Tables and permission to import workflows/create tables.
+- A separate test table and synthetic data for evaluation.
+- No paid API, credentials or messaging account required by the supplied workflow.
 
-**Turn incoming leads into a clear, prioritized review queue.**
+The legacy documentation lists n8n 2.31.5 as a historical target; the exact version of the latest isolated test was not captured. Compatibility is therefore not claimed across all versions. Verify import and the checklist in your own installed version.
 
-AICOS Lead Response Kit is an n8n workflow package for lead validation, qualification, prioritization, duplicate detection, owner review, and follow-up preparation. Built for clinics and adaptable to small teams.
+## Installation
 
-## Try the FREE version now
+1. Import `workflow.json` using n8n's **Import from File** action.
+2. Keep the workflow inactive/unpublished. Its trigger is manual.
+3. Create `aicos_clinic_leads` using all 13 custom columns in [DATA_TABLE_SCHEMA.md](DATA_TABLE_SCHEMA.md). n8n adds `id`, `createdAt` and `updatedAt`.
+4. Confirm both **Find Existing Lead** and **Save Lead (Upsert)** resolve this table by name. If unresolved, re-select the new table in both nodes and verify mappings.
+5. Review **Clinic Config**, including the wording and response-time expectations in the templates.
+6. Execute the shipped sample and inspect **Owner Review Output** and the table.
+7. Repeat the same sample to verify an update rather than another row. Run an invalid sample to verify no write.
 
-A functional FREE preview is available in this repository:
+See [QUICK_START.md](QUICK_START.md) and [FULL_SETUP_GUIDE.md](FULL_SETUP_GUIDE.md). The JSON retains the legacy internal workflow title ending in `SELLABLE`; product availability is Free Beta. The exported logic is unchanged.
 
-- [Download the FREE n8n workflow](free/AICOS_Lead_Response_Kit_Clinics_FREE.json)
-- [FREE Quick Start](FREE_QUICK_START.md)
-- [FREE Usage Terms](FREE_USAGE_TERMS.md)
+## Sample input
 
-The FREE workflow lets you test the core idea immediately:
+The included sample is synthetic. Never contact its example phone number.
 
-**sample lead → validation → scoring → priority → owner-review output**
+```json
+{
+  "lead_id": "LEAD-T2-0001",
+  "name": "سارة",
+  "phone": "+966500000001",
+  "service_type": "أسنان",
+  "source": "واتساب",
+  "message": "أريد حجز موعد أسنان",
+  "preferred_time": "مساء",
+  "branch": "الفرع الرئيسي"
+}
+```
 
-It requires no credentials and no external AI API. The public FREE workflow was runtime-tested successfully on n8n Cloud on September 27, 2026.
+## Expected output and owner review
 
-## FREE vs Full edition
+For the first run in an empty table:
 
-| Capability | FREE | Full |
-| --- | --- | --- |
-| Lead validation | Yes | Yes |
-| Configurable scoring | Yes | Yes |
-| HIGH / MEDIUM / LOW priority | Yes | Yes |
-| Owner review output | Yes | Yes |
-| Data Table persistence | No | Yes |
-| Duplicate detection / upsert | No | Yes |
-| Full follow-up preparation | No | Yes |
-| SLA / channel logic | No | Yes |
-| Full setup documentation | No | Yes |
+```json
+{
+  "lead_id": "LEAD-T2-0001",
+  "name": "سارة",
+  "phone": "+966500000001",
+  "source": "واتساب",
+  "service_type": "أسنان",
+  "score": 55,
+  "priority": "MEDIUM",
+  "validation_status": "VALID",
+  "record_status": "NEW",
+  "result": "محفوظ",
+  "reject_reason": null,
+  "draft_message": "مرحبًا سارة، شكرًا لتواصلك بخصوص أسنان. سنتواصل معك قريبًا لتأكيد موعدك المفضل (مساء).",
+  "sla_minutes": "30"
+}
+```
 
-## Who it is for
+The table records `touch_count = 1` and a generated `last_seen`. A repeated exact phone shows `UPDATED_EXISTING` and `مكرر — تم التحديث`; the row count stays the same and `touch_count` increases. Owner output and stored table fields are separate; `sla_minutes` is exported as a string in Owner Review.
 
-- Clinics organizing incoming inquiries.
-- Small businesses handling leads with a small team.
-- Agencies supporting client lead operations.
-- Teams using n8n for lead handling.
+## Validation and deduplication
 
-## How to try it
+`lead_id` must be a string containing a non-whitespace character. `phone` must be a string matching `^\+?[0-9]{8,15}$`. Missing/blank identifiers reject with `missing_lead_id`; invalid phones reject with `invalid_phone`. Rejected leads are not saved and have no draft/SLA in Owner Review. Scores may still be computed before rejection; rejected leads are not proof of successful scoring.
 
-1. Download the FREE workflow above.
-2. Import it into your own n8n environment.
-3. Optionally edit the included sample lead.
-4. Run the Manual Trigger.
-5. Review the validation, score, priority, and owner output.
+Name, service, source and other optional fields are not acceptance gates. Supply strings for provided text fields; arbitrary objects and numbers are outside the documented contract. Empty optional fields are allowed. Unknown service/source values add zero points. There is no trimming or phone normalization: a plus-prefixed phone and the same digits without plus are separate keys. `lead_id` is not a unique key. Existing duplicate rows are not automatically merged, and concurrent-write safety has not been established.
 
-## Full edition
+## Default scoring
 
-The commercial package includes the full n8n workflow plus quick-start, setup, configuration, data-table, troubleshooting, testing, FAQ, and usage documentation.
+Score = service points + source points + 5 if preferred time is nonempty.
 
-**The paid workflow and paid package are not distributed in this public repository.**
+| Component | Values |
+|---|---|
+| Service | تجميل 40; أسنان 30; استشارة 20; unknown 0 |
+| Source | حجز مباشر 30; واتساب 20; إنستغرام 15; unknown 0 |
+| Priority | HIGH ≥70; MEDIUM ≥40 and <70; LOW <40 |
+| Informational SLA | HIGH 5; MEDIUM 30; LOW 120 minutes |
 
-## Privacy / data handling
+Accepted test vectors: unknown service/source with empty time = **0/LOW**; أسنان + واتساب + مساء = **55/MEDIUM**; تجميل + حجز مباشر + مساء = **75/HIGH**. These are rule-based priorities, not predictions of conversion or medical urgency.
 
-The workflow runs in the user's own n8n environment. Users control their deployment, connected services, access permissions, and data retention.
+## Arabic drafts and limitations
 
-Do not post lead records, patient information, credentials, API keys, or other sensitive information in this public repository or its issues.
+Drafts substitute `name`, `service_type` and `preferred_time`; empty time uses `غير محدد`. Review the text before any manual use. The HIGH default says the team will contact the lead to confirm the appointment and does not promise immediate contact. The LOW default contains a within-one-business-day phrase: change that configuration if your clinic cannot honor it. SLA values are previews; no scheduler or response guarantee is implemented.
 
-## Current limitations
+The shipped workflow processes a sample lead manually. Multiple leads were verified through separate executions, not a simultaneous batch or intake integration. No patient record system, consent management, automated intake, telemetry or email validation is included.
 
-- No automatic WhatsApp or SMS sending in the current edition.
-- Follow-up output is designed for human review.
-- No external AI API is required.
-- Setup and configuration in the user's n8n environment are required.
-- AICOS supports lead handling; it does not provide clinical advice or make medical decisions.
-- Results depend on input quality and configured scoring rules.
+## Test status
 
-## Purchase
+The owner's accepted isolated local verification on 2026-10-03 reports **15/15 regression cases passed**, accepted LOW/MEDIUM/HIGH, exact-phone update, Owner Review and Arabic drafts. **Clean install passed**, outbound send was **NONE**, and the live instance was unchanged. This is maintainer evidence for the tested setup, not a compatibility guarantee. Case 11 used three separate executions. The release candidate preserves the tested workflow bytes. See [TEST_CHECKLIST.md](TEST_CHECKLIST.md).
 
-**Full edition: coming soon.**
+## Security and feedback
 
-The FREE version remains available for evaluation while checkout for the full edition is being prepared.
+Data stays in your configured n8n table and execution logs according to your environment's settings. The supplied workflow contains no outbound send or external API node. Check permissions, backups and retention before evaluating suitability for real data. Use synthetic records until you have validated that suitability.
 
-## Contact / support
+After the owner publishes the repository, use its **Issues → New issue** chooser for Bug Report, Setup Problem, Feature Request or General Feedback. Until then, use the copyable template in [BETA_FEEDBACK.md](BETA_FEEDBACK.md). Never share customer/patient data, credentials, private phone lists or API keys. There is no hidden usage tracking.
 
-For general product questions, [open an issue in this repository](https://github.com/trtalotaibi-boop/AICOS-Lead-Response-Kit/issues). Do not include personal, patient, customer, credential, or other sensitive data.
+## Free Beta usage and next steps
+
+See [FREE_BETA.md](FREE_BETA.md) and [LICENSE_OR_USAGE_TERMS.md](LICENSE_OR_USAGE_TERMS.md). No payment is required. The beta is intended for evaluation and feedback; future plans may change without a pricing promise. Support has no guaranteed response time.
+
+The immediate plan is to collect installation outcomes and prioritize documented setup problems. No additional feature or delivery date is promised.

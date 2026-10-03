@@ -1,0 +1,99 @@
+{
+  "product": "AICOS Lead Response Kit — Clinics Edition v1.0",
+  "version": "1.0-free-beta",
+  "status": "local release candidate",
+  "workflow_sha256": "f630de354714b0e89dd595eb3b1a7eb2df3c47d94052bbcaa4da0e91b5e35441",
+  "files": [
+    {
+      "path": "BETA_FEEDBACK.md",
+      "bytes": 1220,
+      "sha256": "e701fa0b13cedaa699b9a333f86ab16611a949b56f2bfb131a21932e7c5f3ab6"
+    },
+    {
+      "path": "BUYER_FAQ.md",
+      "bytes": 1963,
+      "sha256": "80521b3d04573c3c0c51796e891f170e62f2004636b1e2294b538f9909951724"
+    },
+    {
+      "path": "CHANGELOG.md",
+      "bytes": 754,
+      "sha256": "594c084d8cd0e4c37abb2a13ed26c5232f14b5f590b2b8c027b1a4d75b453708"
+    },
+    {
+      "path": "CONFIGURATION_GUIDE.md",
+      "bytes": 1974,
+      "sha256": "d6cafc25234885143be93f2c5e36ab7e5756f4cdc7bdc3765aafbad0f7e045b6"
+    },
+    {
+      "path": "DATA_TABLE_SCHEMA.md",
+      "bytes": 2374,
+      "sha256": "d91336d0b1b8c091dc5a33950b231740e65432347797975303116671abc2652c"
+    },
+    {
+      "path": "DEMO_WALKTHROUGH.md",
+      "bytes": 1687,
+      "sha256": "c5f85075d96640474c30be93c889e0346a96c61b510d402bc3f2e8755720bfd1"
+    },
+    {
+      "path": "FREE_BETA.md",
+      "bytes": 1067,
+      "sha256": "1d9e7b02fd567f10d12b0399a4b1835ec5e5bdec89020d1828a2512f310c6654"
+    },
+    {
+      "path": "FULL_SETUP_GUIDE.md",
+      "bytes": 4000,
+      "sha256": "c51a734e28937d4f271665e7bf06aaac856143e4b70d0b3d5fefb8949aabb47b"
+    },
+    {
+      "path": "LICENSE_OR_USAGE_TERMS.md",
+      "bytes": 1716,
+      "sha256": "b581a12364470b0c0acf3d8766efacaca530bb4b93173e5e0b30a5ae5c2fcf7f"
+    },
+    {
+      "path": "QUICK_START.md",
+      "bytes": 1806,
+      "sha256": "e1daaa8e5f09e14647e32d4b853f1282897d24bdbc1ee3a5780692144f4f26a0"
+    },
+    {
+      "path": "README.md",
+      "bytes": 8450,
+      "sha256": "6d72358aa65a11e8c7141abb5a09c4ea0196aa8caeaf7d9adf8db5aab84c84b8"
+    },
+    {
+      "path": "RELEASE_NOTES.md",
+      "bytes": 1707,
+      "sha256": "0b77f0710131d8567c8701e6900e963d4c3d8d2e98e1e27f5751ae7df949ce9f"
+    },
+    {
+      "path": "TEST_CHECKLIST.md",
+      "bytes": 2746,
+      "sha256": "360cfe2215cfa7a4ce82e5dec5d6bbc67cc7e664f9fee2dc8ce5ee2809574dff"
+    },
+    {
+      "path": "TROUBLESHOOTING.md",
+      "bytes": 2261,
+      "sha256": "532ceaee7358819e2d8e429756cb9ae5cef731049256bbdc32c6610f4dbd9867"
+    },
+    {
+      "path": "VERSION",
+      "bytes": 14,
+      "sha256": "02fe3f67b135c0c4740cd030660da34cd25f43935e97b4b56d56855b8db93060"
+    },
+    {
+      "path": "demo/expected_first_output.json",
+      "bytes": 492,
+      "sha256": "751ab954da0dc7993ae545e1f07368d0e10fdccda1306cfa730b7e2f3f8f54b5"
+    },
+    {
+      "path": "demo/sample_input.json",
+      "bytes": 267,
+      "sha256": "5873472ef8f050b161c80be067083f3f703e2fd49ab5eafad5cf761d95348062"
+    },
+    {
+      "path": "workflow.json",
+      "bytes": 22445,
+      "sha256": "f630de354714b0e89dd595eb3b1a7eb2df3c47d94052bbcaa4da0e91b5e35441"
+    }
+  ],
+  "note": "Manifest lists all payload files except itself and FILE_LIST.txt to avoid recursive hashes. Owner assets and repository overlay are outside the user ZIP."
+}

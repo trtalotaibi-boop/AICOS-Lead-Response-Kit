@@ -1,0 +1,15 @@
+{
+  "lead_id": "LEAD-T2-0001",
+  "name": "سارة",
+  "phone": "+966500000001",
+  "source": "واتساب",
+  "service_type": "أسنان",
+  "score": 55,
+  "priority": "MEDIUM",
+  "validation_status": "VALID",
+  "record_status": "NEW",
+  "result": "محفوظ",
+  "reject_reason": null,
+  "draft_message": "مرحبًا سارة، شكرًا لتواصلك بخصوص أسنان. سنتواصل معك قريبًا لتأكيد موعدك المفضل (مساء).",
+  "sla_minutes": "30"
+}

@@ -1,0 +1,696 @@
+{
+  "name": "AICOS - Lead Response Kit - Clinics Edition v1.0 - SELLABLE",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "87014cd0-707a-414d-9da1-33880295d45f",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1104,
+        144
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "cfg-sw-service",
+              "name": "service_weights",
+              "value": {
+                "تجميل": 40,
+                "أسنان": 30,
+                "استشارة": 20
+              },
+              "type": "object"
+            },
+            {
+              "id": "cfg-sw-source",
+              "name": "source_weights",
+              "value": {
+                "حجز مباشر": 30,
+                "واتساب": 20,
+                "إنستغرام": 15
+              },
+              "type": "object"
+            },
+            {
+              "id": "cfg-pt",
+              "name": "priority_thresholds",
+              "value": {
+                "high": 70,
+                "medium": 40
+              },
+              "type": "object"
+            },
+            {
+              "id": "cfg-pt-time",
+              "name": "preferred_time_bonus",
+              "value": 5,
+              "type": "number"
+            },
+            {
+              "id": "cfg-tpl",
+              "name": "followup_templates",
+              "value": {
+                "high": "مرحبًا {{name}}، وصلنا طلبك لخدمة {{service_type}}. سيتواصل معك فريق العيادة لتأكيد موعدك ({{preferred_time}}). شكرًا لاختيارك عيادتنا.",
+                "medium": "مرحبًا {{name}}، شكرًا لتواصلك بخصوص {{service_type}}. سنتواصل معك قريبًا لتأكيد موعدك المفضل ({{preferred_time}}).",
+                "low": "مرحبًا {{name}}، استلمنا طلبك بخصوص {{service_type}} وسنتواصل معك خلال يوم عمل لتحديد الموعد المناسب لك. شكرًا لك."
+              },
+              "type": "object"
+            },
+            {
+              "id": "cfg-sla",
+              "name": "sla_minutes",
+              "value": {
+                "HIGH": 5,
+                "MEDIUM": 30,
+                "LOW": 120
+              },
+              "type": "object"
+            },
+            {
+              "id": "cfg-ch",
+              "name": "channels",
+              "value": {
+                "HIGH": "اتصال هاتفي",
+                "MEDIUM": "واتساب",
+                "LOW": "واتساب"
+              },
+              "type": "object"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "5a99a7e6-3840-4803-9f42-21359cc036b8",
+      "name": "Clinic Config",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -880,
+        144
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "in-lead-id",
+              "name": "lead_id",
+              "value": "LEAD-T2-0001",
+              "type": "string"
+            },
+            {
+              "id": "in-name",
+              "name": "name",
+              "value": "سارة",
+              "type": "string"
+            },
+            {
+              "id": "in-phone",
+              "name": "phone",
+              "value": "+966500000001",
+              "type": "string"
+            },
+            {
+              "id": "in-service",
+              "name": "service_type",
+              "value": "أسنان",
+              "type": "string"
+            },
+            {
+              "id": "in-source",
+              "name": "source",
+              "value": "واتساب",
+              "type": "string"
+            },
+            {
+              "id": "in-message",
+              "name": "message",
+              "value": "أريد حجز موعد أسنان",
+              "type": "string"
+            },
+            {
+              "id": "in-pref",
+              "name": "preferred_time",
+              "value": "مساء",
+              "type": "string"
+            },
+            {
+              "id": "in-branch",
+              "name": "branch",
+              "value": "الفرع الرئيسي",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "045da7d7-bd87-4953-8493-01248db50857",
+      "name": "Lead Input (Sample)",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -656,
+        144
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const cfg = $('Clinic Config').item.json;\nconst PHONE_RE = /^\\+?[0-9]{8,15}$/;\nreturn $input.all().map((item) => {\n  const j = item.json;\n  const svc = (cfg.service_weights && cfg.service_weights[j.service_type]) || 0;\n  const src = (cfg.source_weights && cfg.source_weights[j.source]) || 0;\n  const bonus = j.preferred_time ? (cfg.preferred_time_bonus || 0) : 0;\n  const score = svc + src + bonus;\n  const th = cfg.priority_thresholds || { high: 70, medium: 40 };\n  const priority = score >= th.high ? 'HIGH' : (score >= th.medium ? 'MEDIUM' : 'LOW');\n  const lead_id_valid = typeof j.lead_id === 'string' && j.lead_id.trim().length > 0;\n  const phone_valid = typeof j.phone === 'string' && PHONE_RE.test(j.phone);\n  const v_ok = lead_id_valid && phone_valid;\n  const reject_reason = v_ok ? null : (!lead_id_valid ? 'missing_lead_id' : 'invalid_phone');\n  let draft = cfg.followup_templates[priority.toLowerCase()];\n  draft = draft.split('{{name}}').join(j.name || '')\n                 .split('{{service_type}}').join(j.service_type || '')\n                 .split('{{preferred_time}}').join(j.preferred_time ? j.preferred_time : 'غير محدد');\n  return { json: { ...j, score, priority, v_ok, reject_reason, draft_preview: draft, sla_preview: cfg.sla_minutes[priority] } };\n});"
+      },
+      "id": "d0335dbd-e4c9-4d71-968b-c8c5497c0512",
+      "name": "Normalize & Score",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -448,
+        144
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "cond-lead-id",
+              "leftValue": "={{ $json.v_ok ? $json.lead_id : '' }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals",
+                "name": "operator"
+              }
+            },
+            {
+              "id": "cond-phone",
+              "leftValue": "={{ $json.phone }}",
+              "rightValue": "^\\+?[0-9]{8,15}$",
+              "operator": {
+                "type": "string",
+                "operation": "regex",
+                "name": "operator"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "839815b3-e715-4178-89b9-048d8023803d",
+      "name": "Valid Lead?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -224,
+        144
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "aicos_clinic_leads",
+          "mode": "name"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "phone",
+              "keyValue": "={{ $('Lead Input (Sample)').item.json.phone }}"
+            }
+          ]
+        },
+        "limit": 1
+      },
+      "id": "f8e9ee8f-7737-4023-bddf-7e1aae0698c7",
+      "name": "Find Existing Lead",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ],
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "pf-dup",
+              "name": "duplicate",
+              "value": "={{ Boolean($('Find Existing Lead').item.json && $('Find Existing Lead').item.json.lead_id) }}",
+              "type": "boolean"
+            },
+            {
+              "id": "pf-status",
+              "name": "status_final",
+              "value": "={{ (Boolean($('Find Existing Lead').item.json && $('Find Existing Lead').item.json.lead_id) ? $('Find Existing Lead').item.json.status : 'new') }}",
+              "type": "string"
+            },
+            {
+              "id": "pf-tc",
+              "name": "touch_count_final",
+              "value": "={{ (Boolean($('Find Existing Lead').item.json && $('Find Existing Lead').item.json.lead_id) ? Number($('Find Existing Lead').item.json.touch_count || 0) + 1 : 1) }}",
+              "type": "number"
+            },
+            {
+              "id": "pf-draft",
+              "name": "draft_message",
+              "value": "={{ (() => { const t = $('Clinic Config').item.json.followup_templates[String($('Normalize & Score').item.json.priority).toLowerCase()]; const lead = $('Lead Input (Sample)').item.json; return t.split('{'+'{name}'+'}').join(lead.name || '').split('{'+'{service_type}'+'}').join(lead.service_type || '').split('{'+'{preferred_time}'+'}').join(lead.preferred_time ? lead.preferred_time : 'غير محدد'); })() }}",
+              "type": "string"
+            },
+            {
+              "id": "pf-channel",
+              "name": "channel",
+              "value": "={{ $('Clinic Config').item.json.channels[$('Normalize & Score').item.json.priority] }}",
+              "type": "string"
+            },
+            {
+              "id": "pf-sla",
+              "name": "sla_minutes",
+              "value": "={{ $('Clinic Config').item.json.sla_minutes[$('Normalize & Score').item.json.priority] }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "147add55-a8cf-494e-b510-b15e8ea7d15c",
+      "name": "Prepare Follow-Up",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        224,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "upsert",
+        "dataTableId": {
+          "__rl": true,
+          "value": "aicos_clinic_leads",
+          "mode": "name"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "phone",
+              "keyValue": "={{ $('Lead Input (Sample)').item.json.phone }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "lead_id": "={{ $('Lead Input (Sample)').item.json.lead_id }}",
+            "name": "={{ $('Lead Input (Sample)').item.json.name }}",
+            "phone": "={{ $('Lead Input (Sample)').item.json.phone }}",
+            "service_type": "={{ $('Lead Input (Sample)').item.json.service_type }}",
+            "source": "={{ $('Lead Input (Sample)').item.json.source }}",
+            "message": "={{ $('Lead Input (Sample)').item.json.message }}",
+            "preferred_time": "={{ $('Lead Input (Sample)').item.json.preferred_time }}",
+            "branch": "={{ $('Lead Input (Sample)').item.json.branch }}",
+            "status": "={{ $('Prepare Follow-Up').item.json.status_final }}",
+            "priority": "={{ $('Normalize & Score').item.json.priority }}",
+            "score": "={{ $('Normalize & Score').item.json.score }}",
+            "last_seen": "={{ $now }}",
+            "touch_count": "={{ $('Prepare Follow-Up').item.json.touch_count_final }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "lead_id",
+              "displayName": "lead_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "name",
+              "displayName": "name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "phone",
+              "displayName": "phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "service_type",
+              "displayName": "service_type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "source",
+              "displayName": "source",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "message",
+              "displayName": "message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "preferred_time",
+              "displayName": "preferred_time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "branch",
+              "displayName": "branch",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "priority",
+              "displayName": "priority",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "score",
+              "displayName": "score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "touch_count",
+              "displayName": "touch_count",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "last_seen",
+              "displayName": "last_seen",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false,
+          "lead_id": "={{ $('Lead Input (Sample)').item.json.lead_id }}",
+          "name": "={{ $('Lead Input (Sample)').item.json.name }}",
+          "phone": "={{ $('Lead Input (Sample)').item.json.phone }}",
+          "service_type": "={{ $('Lead Input (Sample)').item.json.service_type }}",
+          "source": "={{ $('Lead Input (Sample)').item.json.source }}",
+          "message": "={{ $('Lead Input (Sample)').item.json.message }}",
+          "preferred_time": "={{ $('Lead Input (Sample)').item.json.preferred_time }}",
+          "branch": "={{ $('Lead Input (Sample)').item.json.branch }}",
+          "status": "={{ $('Prepare Follow-Up').item.json.status_final }}",
+          "score": "={{ $('Normalize & Score').item.json.score }}",
+          "priority": "={{ $('Normalize & Score').item.json.priority }}",
+          "touch_count": "={{ $('Prepare Follow-Up').item.json.touch_count_final }}",
+          "last_seen": "={{ new Date().toISOString() }}"
+        },
+        "options": {}
+      },
+      "id": "73aab0af-c2ad-4f99-8f20-ad83c6c24d0e",
+      "name": "Save Lead (Upsert)",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        448,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ro-name",
+              "name": "name",
+              "value": "={{ $('Lead Input (Sample)').item.json.name }}",
+              "type": "string"
+            },
+            {
+              "id": "ro-phone",
+              "name": "phone",
+              "value": "={{ $('Lead Input (Sample)').item.json.phone }}",
+              "type": "string"
+            },
+            {
+              "id": "ro-service",
+              "name": "service_type",
+              "value": "={{ $('Lead Input (Sample)').item.json.service_type }}",
+              "type": "string"
+            },
+            {
+              "id": "ro-priority",
+              "name": "priority",
+              "value": "={{ $('Normalize & Score').item.json.priority }}",
+              "type": "string"
+            },
+            {
+              "id": "ro-result",
+              "name": "result",
+              "value": "={{ ($('Normalize & Score').item.json.v_ok) ? (($json.touch_count !== undefined && Number($json.touch_count) > 1) ? 'مكرر — تم التحديث' : 'محفوظ') : 'مرفوض' }}",
+              "type": "string"
+            },
+            {
+              "id": "ro-reason",
+              "name": "reject_reason",
+              "value": "={{ ($('Normalize & Score').item.json.v_ok) ? null : $('Normalize & Score').item.json.reject_reason }}",
+              "type": "string"
+            },
+            {
+              "id": "ro-draft",
+              "name": "draft_message",
+              "value": "={{ ($('Normalize & Score').item.json.v_ok) ? $('Normalize & Score').item.json.draft_preview : null }}",
+              "type": "string"
+            },
+            {
+              "id": "ro-sla",
+              "name": "sla_minutes",
+              "value": "={{ ($('Normalize & Score').item.json.v_ok) ? $('Normalize & Score').item.json.sla_preview : null }}",
+              "type": "string"
+            },
+            {
+              "id": "89cf9eeb-5167-4c3c-ac2e-fc51962bc3f7",
+              "name": "lead_id",
+              "value": "={{ $('Lead Input (Sample)').item.json.lead_id }}",
+              "type": "string"
+            },
+            {
+              "id": "ro-source",
+              "name": "source",
+              "value": "={{ $('Lead Input (Sample)').item.json.source }}",
+              "type": "string"
+            },
+            {
+              "id": "ro-score",
+              "name": "score",
+              "value": "={{ $('Normalize & Score').item.json.score }}",
+              "type": "number"
+            },
+            {
+              "id": "ro-validation",
+              "name": "validation_status",
+              "value": "={{ $('Normalize & Score').item.json.v_ok ? 'VALID' : 'REJECTED' }}",
+              "type": "string"
+            },
+            {
+              "id": "ro-record-status",
+              "name": "record_status",
+              "value": "={{ (!$('Normalize & Score').item.json.v_ok) ? 'NOT_SAVED' : (($json.touch_count !== undefined && Number($json.touch_count) > 1) ? 'UPDATED_EXISTING' : 'NEW') }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "4a667b55-28ec-46c5-86e2-2bf16096c220",
+      "name": "Owner Review Output",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        672,
+        144
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Clinic Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clinic Config": {
+      "main": [
+        [
+          {
+            "node": "Lead Input (Sample)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lead Input (Sample)": {
+      "main": [
+        [
+          {
+            "node": "Normalize & Score",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize & Score": {
+      "main": [
+        [
+          {
+            "node": "Valid Lead?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Valid Lead?": {
+      "main": [
+        [
+          {
+            "node": "Find Existing Lead",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Owner Review Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Existing Lead": {
+      "main": [
+        [
+          {
+            "node": "Prepare Follow-Up",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Follow-Up": {
+      "main": [
+        [
+          {
+            "node": "Save Lead (Upsert)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Lead (Upsert)": {
+      "main": [
+        [
+          {
+            "node": "Owner Review Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "meta": {},
+  "nodeGroups": [],
+  "tags": []
+}
